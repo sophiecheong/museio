@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "webpack && python src/main.py",
+    "start": "webpack && node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/sophiecheong/museio#readme",
   "dependencies": {
+    "express": "~4.15.2",
     "material-ui": "~0.17.0",
     "react": "~15.4.2",
     "react-dom": "~15.4.2",
@@ -25,7 +26,9 @@
     "react-redux": "~5.0.0",
     "redux-thunk": "~2.2.0",
     "redux-logger": "~2.8.2",
-    "react-tap-event-plugin": "~2.0.1"
+    "react-tap-event-plugin": "~2.0.1",
+    "body-parser": "~1.8.1"
+
   },
   "devDependencies": {
     "babel-core": "~6.23.1",
