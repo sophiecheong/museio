@@ -1,34 +1,85 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router';
-import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
-import Divider from 'material-ui/Divider';
-import TextField from 'material-ui/TextField';
+import { Step, Stepper, StepLabel } from 'material-ui/Stepper';
 
 import signUpStyle from './signUpStyle';
+import Step1 from './Step1';
+import Step2 from './Step2';
+import Step3 from './Step3';
+import Step4 from './Step4';
 
 export default class SignUp extends Component {
     constructor(props) {
         super();
 
         this.state = { 
-            open: false,
-            email: '',
-            password: '' };
+            stepIndex: 0,
+            userUpdated: 0
+        };
 
-        this.handleOpen = this.handleOpen.bind(this);
-        this.handleClose = this.handleClose.bind(this);
+        this.user = {
+            email: '',
+            status: '',
+            password: '',
+            firstName: '',
+            lastName: '',
+            location: '',
+            hrRate:'',
+            instruments: [{
+                instr: '',
+                cert: '',
+                qproof: ''
+            }],
+            profImage: ''
+        };
+
+        this.checkDisabled = this.checkDisabled.bind(this);
+        this.setUser = this.setUser.bind(this);
+        this.handleNext = this.handleNext.bind(this);
+        this.handlePrev = this.handlePrev.bind(this);
         this.handleTextChange = this.handleTextChange.bind(this);
     }
 
-    handleOpen () {
-        this.setState({open: true});
-    };
+    checkDisabled() {
+        const role = this.user.status;
+        const instruments = this.user.instruments;
+        const stepIndex = this.state.stepIndex;
 
-    handleClose () {
-        this.setState({open: false});
-    };
+        var isDisabled = false;
+        var details = Object.assign({}, this.user);
+        delete details.instruments;
+        delete details.status;
+        delete details.profImage;
+        if(2 == role) delete details.hrRate;
+
+        const hasEmptyFields = Object.values(details)
+            .map(function(value) { return !!value })
+            .indexOf(false) > -1;
+
+        const isLegitInstru = instruments.map(function(i) {
+            const allEmpty = !(!!i.instr.length || !!i.cert || !!i.qproof);
+            const allFilled = (!!i.instr.length && !!i.cert && !!i.qproof);
+            return (allFilled || (allEmpty && instruments.length > 1)); 
+        }).indexOf(false) <= -1;
+
+        if((0 == stepIndex && !role) ||
+            (1 == stepIndex && (hasEmptyFields || (1 == role && !isLegitInstru))) ||
+            (2 == stepIndex && !this.user.profImage.length))
+            isDisabled = true;
+
+        return isDisabled;
+    }
+
+    handleNext() {
+        const { stepIndex } = this.state;
+        this.setState({ stepIndex: stepIndex + 1 });
+    }
+
+    handlePrev() {
+        const { stepIndex } = this.state;
+        this.setState({ stepIndex: stepIndex - 1 });
+    }
 
     handleTextChange(evt) {
         var text = {};
@@ -36,68 +87,64 @@ export default class SignUp extends Component {
         this.setState(text);
     }
 
+    setUser(newUser) {
+        this.user = Object.assign({}, this.user, newUser);
+        this.setState({ userUpdated: this.state.userUpdated + 1 });
+    }
+
+    renderStepContent(stepIndex) {
+        switch(stepIndex) {
+            case 0:
+                return (<Step1 updateUser={ this.setUser } role={ this.user.status } />);
+            case 1: 
+                return (<Step2 updateUser={ this.setUser } user={ this.user } />);
+            case 2:
+                return (<Step3 updateUser={ this.setUser } profImage={ this.user.profImage } />);
+            case 3: 
+                return (<Step4 />);
+        }
+    }
+
     render() {
-        const FacebookImage = <img src='../../images/facebook-icon.svg' 
-                                    style={ loginStyle.icon } />
-        const GoogleImage = <img src='../../images/GoogleImage.png' 
-                                    style={ loginStyle.icon } />
+        const { stepIndex } = this.state;
+        const isDisabled = this.checkDisabled();
 
         return (
-            <span style={{ margin: '0 5px'}}>
-                <FlatButton label="Log In" onTouchTap={ this.handleOpen } />
-                <Dialog modal={ false }
-                        contentStyle={{width: '35%'}}
-                        open={ this.state.open }
-                        onRequestClose={ this.handleClose } >
-
-                    <RaisedButton label="Log In with Facebook" 
-                                backgroundColor="#3B5998"
-                                labelColor="#fff"
-                                style={ loginStyle.overall }
-                                buttonStyle={ loginStyle.button }
-                                icon={ FacebookImage }/>
-
-                    <RaisedButton label="Log In with Google" 
-                                style={ loginStyle.overall }
-                                buttonStyle={ loginStyle.button }
-                                icon={ GoogleImage }/>
-
-                    <div style={{ clear: 'both', textAlign: 'center' }}>
-                        <Divider style={ loginStyle.dividerLeft } /> 
-                        Or
-                        <Divider style={ loginStyle.dividerRight } />
+            <div>
+                <Stepper activeStep={stepIndex} style={ signUpStyle.stepper } >
+                    <Step>
+                        <StepLabel>What are you?</StepLabel>
+                    </Step>
+                    <Step>
+                        <StepLabel>Who are you?</StepLabel>
+                    </Step>
+                    <Step>
+                        <StepLabel> Smile! </StepLabel>
+                    </Step>
+                    <Step>
+                        <StepLabel> Done </StepLabel>
+                    </Step>
+                </Stepper>
+                <div>
+                    <div>
+                        <div style={ signUpStyle.contentContainer } > 
+                            { this.renderStepContent(stepIndex) } 
+                        </div>
+                        <div style={ stepIndex == 3? signUpStyle.hide : signUpStyle.btnContainer }>
+                            <FlatButton
+                                label="Back"
+                                disabled={ stepIndex == 0 }
+                                onTouchTap={ this.handlePrev }
+                                style={{ marginRight: 12 }} />
+                            <RaisedButton
+                                label={stepIndex === 2 ? 'Finish' : 'Next'}
+                                disabled={ isDisabled }
+                                primary={true}
+                                onTouchTap={ this.handleNext } />
+                        </div>
                     </div>
-
-                    <TextField id="email" key="email"
-                        value={ this.state.email }
-                        floatingLabelText="Email"
-                        hintText="Enter Email here"
-                        style={{ width: '100%'}}
-                        onChange={ this.handleTextChange } />
-
-                    <TextField id="password" key="password"
-                        value={ this.state.password }
-                        floatingLabelText="Password"
-                        hintText="Enter Password here"
-                        style={{ width: '100%'}}
-                        type="password"
-                        onChange={ this.handleTextChange } />
-
-                    <RaisedButton label="Log In" 
-                                style={ loginStyle.overall }
-                                primary={ true }
-                                buttonStyle={ loginStyle.button } />
-
-                    <Divider />
-                    <div style={{ clear: 'both', padding: '10px 0', lineHeight: '40px' }}>
-                        Dont have an account?
-                        <Link to="/register" style={{float: 'right'}}>
-                            <FlatButton label="Sign up" />
-                        </Link>
-                    </div>
-
-                </Dialog>
-            </span>
+                </div>
+            </div>
         );
     }
 }

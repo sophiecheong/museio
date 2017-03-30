@@ -1,16 +1,14 @@
 import { combineReducers } from 'redux';
-
-// import action
+import userAction from './userAction';
 
 export default combineReducers({
 
-	currentUser: function (state = {}, action) {
-		switch (action) {
-			case 'LOGIN':
-				return { user: "user" };
-
+	currentUser: function (state = userAction.dummyUser, action) {
+		switch (action.type) {
+			case userAction.CURRENT_USER:
+				return action.user;
 			default:
-				return {};
+				return userAction.dummyUser;
 		} 
 	}
 });
