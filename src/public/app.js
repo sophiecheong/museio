@@ -11,8 +11,10 @@ import Theme from './components/style/theme';
 import componentStyles from './components/style/components';
 
 import Header from './components/header/Header';
+import EmptyParentComponent from './components/dummy/EmptyParentComponent';
 import About from './components/about/About';
 import SignUp from './components/signup/SignUp';
+import Profile from './components/profile/Profile';
 
 const app = document.getElementById('app');
 const store = configureStore();
@@ -25,9 +27,10 @@ ReactDOM.render(
     	<Provider store={ store }>
 	        <Router history={ browserHistory }>
 	            <Route path='/' component={ Header }>
-	            	<IndexRoute component={ SignUp }/>
+	            	<IndexRoute component={ Profile }/>
 	            	<Route path="/about" component={ About } />
 	            	<Route path="/register" component={ SignUp } />
+	            	<Route path="/profile/:userId" component={ Profile } />
 	            </Route>
 	        </Router>
         </Provider>

@@ -14,10 +14,10 @@ import LoggedOutMenu from '../dummy/LoggedOutMenu';
 class Header extends Component {
 
 	render() {
-		const userId = this.props.currentUser.userId;
+		const userId = this.props.currentUser.id;
 		return(
 			<div>
-				<div style={{ clear: 'both', padding: '0 20px' }}>
+				<div style={{ clear: 'both', padding: '0 20px 20px' }}>
 					<LogoButton />
 					{ !!userId? <LoggedInMenu /> : <LoggedOutMenu /> }
 				</div>
