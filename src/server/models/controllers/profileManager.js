@@ -32,6 +32,19 @@ ProfileManager.prototype = {
             });
         }
     },
+
+    throwErr: function (err) {
+        if (err) { //incase of internal error log it in the error database
+            var errorentry = {};
+            errorentry['file'] = item.file;
+            errorentry['Status'] = 'Could not add item to AccountingLog from the profileManager.';
+            self.adderror(errorentry, function (err) {
+               if (err){
+                   callback(err);
+               } 
+            });
+        } 
+    },
     
     //add item to error databse
     adderror: function (req, callback) {

@@ -171,82 +171,83 @@ MetricManager.prototype = {
             self.docdatabase.decodeauth(token, function(err, items){
                 if(err){
                     throw(err);
-                }else{
-                    userid = items.substring(2);
-                    
-                    self.accountdatabase.checkauth(token, function(err, authentication){
-                        if(err){
-                            res.status(400).send({error: "Unauthorized"});
-                        } else{
-                            var data = {};
-
-                            self.accountdatabase.getItem(userid, function(err, doc){
-                               if(err){
-                                   throw(err);
-                               } else {
-                                    var reviewer = [];
-                                   reviewer['firstName'] = doc.firstName;
-                                   reviewer['lastName'] = doc.lastName;
-                                   reviewer['id'] = userid;
-                                   reviewer['profImage'] = doc.profImage;
-
-                                   var querySpec = {
-                                        query: 'SELECT * FROM root r WHERE r.reviewerid=@reviewerid',
-                                        parameters: [{
-                                            name:'@reviewerid',
-                                            value: userid
-                                        }]
-                                    };
-
-                                    self.docdatabase.find(querySpec, function (err, items){
-                                        if(err){
-                                            throw(err);
-                                        }else{
-                                            var reviewinfo = [];
-                                            var reviewee = [];
-                                            for (var i=0; i<5; i++){
-                                                reviewinfo['dateCreated'] = items[i].dateCreated;
-                                                reviewinfo['avgRating'] = items[i].avgRating;
-                                                reviewinfo['review'] = items[i].review;
-                                                reviewee['firstName'] = items[i].firstName;
-                                                reviewee['lastName'] = items[i].lastName;
-                                                reviewee['profImage'] = items[i].profImage;
-                                                reviewinfo['reviewer'] = reviewer;
-                                                reviewinfo['reviewee'] = reviewee;
-                                                data[items[i].revieweeid] = reviewinfo;
-
-                                                if(Object.keys(data).length ==5){
-                                                    if (reviewer){
-                                                        responseHeader['data'] = data;
-                                                        self.accountdatabase.encodeauth(userid, function(err, token){
-                                                            if (err){
-                                                                throw(err);
-                                                            }else{
-                                                                var headers = {};
-                                                                headers['token'] = token;
-                                                                responseHeader['headers'] = headers;
-                                                                responseHeader['status'] = 200;
-                                                                responseHeader['statusText'] = 'Succesfully retrived data from login info.';
-
-                                                                //fix after intergration
-                                                                console.log(responseHeader);
-                                                                res.render('index');
-                                                            }
-                                                        });    
-                                                    }else{
-                                                        //get average data    
-                                                    }
-                                                }
-                                                reviewinfo = [];
-                                                reviewee = [];
-                                            }     
-                                        }
-                                    });
-                                }
-                            });                    
-                        }
-                    });
+                    return;
                 }
+                userid = items.substring(2);
+                
+                self.accountdatabase.checkauth(token, function(err, authentication){
+                    if(err){
+                        res.status(400).send({error: "Unauthorized"});
+                    } else{
+                        var data = {};
+
+                        self.accountdatabase.getItem(userid, function(err, doc){
+                           if(err){
+                               throw(err);
+                           } else {
+                                var reviewer = [];
+                               reviewer['firstName'] = doc.firstName;
+                               reviewer['lastName'] = doc.lastName;
+                               reviewer['id'] = userid;
+                               reviewer['profImage'] = doc.profImage;
+
+                               var querySpec = {
+                                    query: 'SELECT * FROM root r WHERE r.reviewerid=@reviewerid',
+                                    parameters: [{
+                                        name:'@reviewerid',
+                                        value: userid
+                                    }]
+                                };
+
+                                self.docdatabase.find(querySpec, function (err, items){
+                                    if(err){
+                                        throw(err);
+                                    }else{
+                                        var reviewinfo = [];
+                                        var reviewee = [];
+                                        for (var i=0; i<5; i++){
+                                            reviewinfo['dateCreated'] = items[i].dateCreated;
+                                            reviewinfo['avgRating'] = items[i].avgRating;
+                                            reviewinfo['review'] = items[i].review;
+                                            reviewee['firstName'] = items[i].firstName;
+                                            reviewee['lastName'] = items[i].lastName;
+                                            reviewee['profImage'] = items[i].profImage;
+                                            reviewinfo['reviewer'] = reviewer;
+                                            reviewinfo['reviewee'] = reviewee;
+                                            data[items[i].revieweeid] = reviewinfo;
+
+                                            if(Object.keys(data).length ==5){
+                                                if (reviewer){
+                                                    responseHeader['data'] = data;
+                                                    self.accountdatabase.encodeauth(userid, function(err, token){
+                                                        if (err){
+                                                            throw(err);
+                                                        }else{
+                                                            var headers = {};
+                                                            headers['token'] = token;
+                                                            responseHeader['headers'] = headers;
+                                                            responseHeader['status'] = 200;
+                                                            responseHeader['statusText'] = 'Succesfully retrived data from login info.';
+
+                                                            //fix after intergration
+                                                            console.log(responseHeader);
+                                                            res.render('index');
+                                                        }
+                                                    });    
+                                                }else{
+                                                    //get average data    
+                                                }
+                                            }
+                                            reviewinfo = [];
+                                            reviewee = [];
+                                        }     
+                                    }
+                                });
+                            }
+                        });                    
+                    }
+                });
+                
             });
         }
     }
