@@ -5,7 +5,6 @@ export default class ProfileImage extends Component {
 	constructor(props) {
 		super();
 
-		this.imageUrl = !!props.profImage? props.profImage : 'http://leafii.com/images/defaultProfilePic.png';
 		this.paperStyle = {
 			width: props.width || '75px',
 			height: '0',
@@ -18,9 +17,11 @@ export default class ProfileImage extends Component {
 	}
 
 	render() {
+		const imageUrl = !!this.props.profImage ? this.props.profImage : 'http://leafii.com/images/defaultProfilePic.png';
+
 		return(
 			<Paper style={ this.paperStyle } zDepth={2} circle={true}>
-				<img src={ this.imageUrl } style={{ width: '100%' }} />
+				<img src={ imageUrl } style={{ width: '100%' }} />
 			</Paper>
 		);
 	}

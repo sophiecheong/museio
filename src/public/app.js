@@ -14,7 +14,10 @@ import Header from './components/header/Header';
 import EmptyParentComponent from './components/dummy/EmptyParentComponent';
 import About from './components/about/About';
 import SignUp from './components/signup/SignUp';
+import Settings from './components/settings/Settings';
 import Profile from './components/profile/Profile';
+import EditProfile from './components/profile/EditProfile';
+import EditInstruments from './components/profile/EditInstruments';
 
 const app = document.getElementById('app');
 const store = configureStore();
@@ -31,6 +34,11 @@ ReactDOM.render(
 	            	<Route path="/about" component={ About } />
 	            	<Route path="/register" component={ SignUp } />
 	            	<Route path="/profile/:userId" component={ Profile } />
+	            	<Route path="/settings" component={ Settings } >
+	            		<IndexRoute component={ EditProfile } />
+	            		<Route path="/settings/profile" component={ EditProfile } />
+	            		<Route path="/settings/instruments" component={ EditInstruments } />
+	            	</Route>
 	            </Route>
 	        </Router>
         </Provider>

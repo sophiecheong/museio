@@ -21,14 +21,14 @@ class Profile extends Component {
 		const isTeacher = 1 == this.props.currentUser.status;
 		return(
 			<div>
-				<Subheader> Reviews </Subheader>
+				<Subheader> { isTeacher ? "Reviews" : "Reviews Made" } </Subheader>
 				{ metrics.map(function(metric) {
 					const user = isTeacher ? metric.reviewer : metric.reviewee;
 					return(
 						<div style={{ overflow: "auto" }} key={ metric.id } >
 							<ProfileImage profImage={ user.profImage } width="15%" />
 							<div style={{ float: "left", margin: "0 5%", width: "70%" }}>
-								<Link to={ "/profile/" + user.id} > 
+								<Link to={ "/profile/" + user.id } > 
 									<h4 style={ profileStyle.name }>
 										{ user.firstName } { user.lastName }
 									</h4>
@@ -50,6 +50,7 @@ class Profile extends Component {
 
 	render() {
 		const user = this.props.currentUser;
+		const isTeacher = 1 == user.status;
 		return(
 			<div>
 				<Paper style={ profileStyle.accountContainer } >
@@ -57,16 +58,14 @@ class Profile extends Component {
 					<div style={{ float: "left", margin: "0 5%", width: "70%" }}>
 						<h2 style={ profileStyle.name }>
 							{ user.firstName } { user.lastName }
-							{ user.verify && <VerifiedIcon /> }
+							{ (user.verify && isTeacher) && <VerifiedIcon /> }
 						</h2>
 						<Subheader style={ profileStyle.location }> 
-							{ user.avgRating && <StarRating stars={ user.avgRating } /> } &middot; &nbsp;
+							{ (user.avgRating && isTeacher) && <StarRating stars={ user.avgRating } /> } &middot; &nbsp;
 							{ user.mLocation } &middot; &nbsp;
-							{ user.hrRate && "$" + user.hrRate + "/hour" }
+							{ (user.hrRate && isTeacher) && "$" + user.hrRate + "/hour" }
 						</Subheader>
-						<span style={ profileStyle.bio }> 
-							{ user.bio }
-						</span>
+						<span style={ profileStyle.bio }> { user.bio } </span>
 					</div>
 				</Paper>
 				<div style={ profileStyle.metricsContainer }>
@@ -92,7 +91,7 @@ class Profile extends Component {
 						}
 					</Paper>
 				</div>
-				<div style={ 1 == user.status ? profileStyle.rightContainer : { display: 'none' }} >
+				<div style={ isTeacher ? profileStyle.rightContainer : { display: 'none' }} >
 					<Paper style={ profileStyle.fullWidthPaper } >
 						<Subheader> Schedule </Subheader>
 						Insert Schedule Here
@@ -113,4 +112,4 @@ function mapStateToProfile(state) {
 	return { currentUser, metrics };
 }
 
-export default connect(mapStateToProfile)(Profile)
+export default connect(mapStateToProfile)(Profile);
