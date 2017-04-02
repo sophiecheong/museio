@@ -80,9 +80,9 @@ MetricManager.prototype = {
                     }
                     
                     item['reviewee'] = {
-                        'firstName' = doc.firstName,
-                        'lastName' = doc.lastName,
-                        'profImage' = doc.profImage
+                        firstName: doc.firstName,
+                        lastName: doc.lastName,
+                        profImage: doc.profImage
                     };
                 });
                 self.accountdatabase.getItem(item.reviewerId, function(err, doc){
@@ -101,9 +101,9 @@ MetricManager.prototype = {
                     }
                     
                     item['reviewer'] = {
-                        'firstName' = doc.firstName,
-                        'lastName' = doc.lastName,
-                        'profImage' = doc.profImage
+                        firstName: doc.firstName,
+                        lastName: doc.lastName,
+                        profImage: doc.profImage
                     };
                 });
                 
