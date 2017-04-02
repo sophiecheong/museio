@@ -1,6 +1,3 @@
 node_modules/
 *.log
-src/public/components/
-src/public/images/
-src/public/app.min.js
-src/configureStore.js
+
