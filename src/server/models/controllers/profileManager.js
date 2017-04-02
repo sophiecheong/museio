@@ -509,7 +509,7 @@ ProfileManager.prototype = {
         if(!id || !psw){
             res.status(400).send({error: "Invalid email"});
         }else{
-            self.docdatabase.getItem(id, function(err, doc){
+            self.docdatabase.getLogin(id, function(err, doc){
                 if (err) {
                     res.status(400).send({statusText: "Could not retrive user data from login info."}); //internal error
                         
