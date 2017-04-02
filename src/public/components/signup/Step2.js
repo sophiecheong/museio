@@ -16,7 +16,7 @@ export default class Step2 extends Component {
 			firstName: props.user.firstName,
 			lastName: props.user.lastName,
 			hrRate: props.user.hrRate,
-			location: props.user.location,
+			mLocation: props.user.mLocation,
 			instruments: props.user.instruments
 		};
 
@@ -134,11 +134,11 @@ export default class Step2 extends Component {
 							hintText="Enter how much you charge per hour"
 							value={ this.state.hrRate }
 							onChange={ this.handleTextChange } />
-						<TextField id="location"
+						<TextField id="mLocation"
 							style={ signUpStyle.profileItems.rightItem }
 							floatingLabelText="Location"
 							hintText="Enter your location"
-							value={ this.state.location }
+							value={ this.state.mLocation }
 							onChange={ this.handleTextChange } />
 					</div>
 

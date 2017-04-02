@@ -44,7 +44,12 @@ export default class Login extends Component {
 
         return (
             <span style={{ margin: '0 5px'}}>
-                <FlatButton label="Log In" onTouchTap={ this.handleOpen } />
+                {
+                    !!this.props.raisedBtn ? 
+                    <RaisedButton primary={ true } label="Log In" onTouchTap={ this.handleOpen } /> :
+                    <FlatButton label="Log In" onTouchTap={ this.handleOpen } />
+                }
+                
                 <Dialog modal={ false }
                         contentStyle={{width: '35%'}}
                         open={ this.state.open }
@@ -84,9 +89,9 @@ export default class Login extends Component {
                         onChange={ this.handleTextChange } />
 
                     <RaisedButton label="Log In" 
-                                style={ loginStyle.overall }
-                                primary={ true }
-                                buttonStyle={ loginStyle.button } />
+                        style={ loginStyle.overall }
+                        primary={ true }
+                        buttonStyle={ loginStyle.button } />
 
                     <Divider />
                     <div style={{ clear: 'both', padding: '10px 0', lineHeight: '40px' }}>

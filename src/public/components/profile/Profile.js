@@ -8,6 +8,9 @@ import profileStyle from './profileStyle';
 import ProfileImage from '../dummy/ProfileImage';
 import VerifiedIcon from '../dummy/VerifiedIcon';
 import StarRating from '../dummy/StarRating';
+import Schedules from '../schedule/Schedules';
+
+import userAction from '../userAction';
 
 class Profile extends Component {
 	constructor(props) {
@@ -16,9 +19,16 @@ class Profile extends Component {
 		this.renderMetrics = this.renderMetrics.bind(this);
 	}
 
+	componentDidMount() {
+		const { dispatch, currentUser } = this.props;
+		const userId = "me" == this.props.params.userId ? currentUser.id : this.props.params.userId;
+		//dispatch(this.getUser(userId, "me" == this.props.params.userId));
+	}
+
 	renderMetrics() {
 		const metrics = this.props.metrics;
-		const isTeacher = 1 == this.props.currentUser.status;
+		const viewingUser = "me" == this.props.params.userId ? this.props.currentUser : this.props.user;
+		const isTeacher = 1 == viewingUser.status;
 		return(
 			<div>
 				<Subheader> { isTeacher ? "Reviews" : "Reviews Made" } </Subheader>
@@ -49,12 +59,12 @@ class Profile extends Component {
 	}
 
 	render() {
-		const user = this.props.currentUser;
+		const user = "me" == this.props.params.userId ? this.props.currentUser : this.props.user;
 		const isTeacher = 1 == user.status;
 		return(
 			<div>
 				<Paper style={ profileStyle.accountContainer } >
-					<ProfileImage profImage={ this.props.currentUser.profImage } width="15%" />
+					<ProfileImage profImage={ user.profImage } width="15%" />
 					<div style={{ float: "left", margin: "0 5%", width: "70%" }}>
 						<h2 style={ profileStyle.name }>
 							{ user.firstName } { user.lastName }
@@ -71,7 +81,7 @@ class Profile extends Component {
 				<div style={ profileStyle.metricsContainer }>
 					<Paper style={ profileStyle.fullWidthPaper } >
 						{
-							!!this.props.metrics.length ? this.renderMetrics() : <Subheader> Loading... </Subheader>
+							!!this.props.metrics ? this.renderMetrics() : <Subheader> Loading... </Subheader>
 						}
 					</Paper> 
 				</div>
@@ -79,7 +89,7 @@ class Profile extends Component {
 					<Paper style={ profileStyle.fullWidthPaper } >
 						<Subheader> Instruments </Subheader>
 						{ 
-							!!user.instruments.length ?
+							!! user.instruments && !!user.instruments.length ?
 							user.instruments.map(function(instrument) {
 								return (
 									<div key={ instrument.instr }> 
@@ -94,9 +104,7 @@ class Profile extends Component {
 				<div style={ isTeacher ? profileStyle.rightContainer : { display: 'none' }} >
 					<Paper style={ profileStyle.fullWidthPaper } >
 						<Subheader> Schedule </Subheader>
-						Insert Schedule Here
-						{ //<Schedule /> 
-						}
+						<Schedules userId={ user.id } /> 
 					</Paper>
 				</div>
 
@@ -108,8 +116,8 @@ class Profile extends Component {
 
 function mapStateToProfile(state) {
 	console.log(state);
-	const { currentUser, metrics } = state.userReducer;
-	return { currentUser, metrics };
+	const { currentUser, metrics, user } = state.userReducer;
+	return { currentUser, metrics, user };
 }
 
 export default connect(mapStateToProfile)(Profile);

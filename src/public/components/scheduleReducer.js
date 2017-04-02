@@ -1,16 +1,14 @@
 import { combineReducers } from 'redux';
-
-// import action
+import scheduleAction from './scheduleAction';
 
 export default combineReducers({
 
-	currentSchedule: function (state = {}, action) {
-		switch (action) {
-			case 'LOGIN':
-				return { user: "user" };
-
+	currentSchedules: function (state = scheduleAction.dummySchedules, action) {
+		switch (action.type) {
+			case scheduleAction.CURRENT_SCHEDULE:
+				return action.schedules;
 			default:
-				return {};
+				return scheduleAction.dummySchedules; //state;
 		} 
 	}
 });

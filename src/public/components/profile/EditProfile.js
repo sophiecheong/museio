@@ -8,6 +8,7 @@ import TextField from 'material-ui/TextField';
 
 import ProfileImage from '../dummy/ProfileImage';
 import editStyle from './editStyle';
+import userAction from '../userAction';
 
 class EditProfile extends Component {
 	constructor(props) {
@@ -48,7 +49,11 @@ class EditProfile extends Component {
 	}
 
 	saveUser() {
-		//Save user
+		const { dispatch } = this.props;
+        1 == this.user.status ? 
+            dispatch(userAction.updateTeacher(this.user)) :
+            dispatch(userAction.updateStudent(this.user));
+        dispatch(userAction.receiveCurrentUser(this.user));
 	}
 
 	resetUser() {

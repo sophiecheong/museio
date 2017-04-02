@@ -11,7 +11,7 @@ class LoggedInMenu extends Component {
 	render() {
 		return(
 			<div style={{ 'float': 'right' }}>
-				<Link to="/search"> 
+				<Link to="/browse"> 
 					<FlatButton label="Browse" />
 				</Link>
 				<Link to="/notifications">

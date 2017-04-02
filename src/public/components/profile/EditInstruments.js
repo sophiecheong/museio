@@ -48,7 +48,12 @@ class EditInstruments extends Component {
 	}
 
 	saveInstruments() {
-		//
+		const { dispatch } = this.props;
+		const user = Object.assign({}, this.user, this.instruments);
+        1 == this.user.status ? 
+            dispatch(userAction.updateTeacher(user)) :
+            dispatch(userAction.updateStudent(user));
+        dispatch(userAction.receiveCurrentUser(user));
 	}
 
 	resetInstruments() {

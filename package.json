@@ -28,8 +28,9 @@
     "redux-thunk": "~2.2.0",
     "redux-logger": "~2.8.2",
     "react-tap-event-plugin": "~2.0.1",
-    "react-event-calendar": "~0.3.0",
-    "body-parser": "~1.8.1"
+    "react-big-calendar": "~0.13.0",
+    "body-parser": "~1.8.1",
+    "moment": "~2.18.1"
 
   },
   "devDependencies": {
