@@ -50,8 +50,8 @@ ProfileManager.prototype = {
         var self = this;
         var item = req.body.user;
         var token = req.header.auth.token;
-        var id = '';
         var responseHeader = {};
+        var id ='';
         
         //check update or new user 
         if(!token){
@@ -88,7 +88,6 @@ ProfileManager.prototype = {
                 delete item.status;
                 delete item.email;
                 delete item.psw;
-                delete item.id;
                 
                 //add user to database
                 self.docdatabase.addItem(item, function (err) {
@@ -254,7 +253,6 @@ ProfileManager.prototype = {
                 delete item.status;
                 delete item.email;
                 delete item.psw;
-                delete item.id;
                 
                 //add user to database
                 self.docdatabase.addItem(item, function (err) {
@@ -357,7 +355,7 @@ ProfileManager.prototype = {
                                         if (err){
                                             throw(err);
                                         }else{
-                                             var headers = [];
+                                            var headers = [];
                                             var tokenarray = [];
                                             tokenarray['token'] = token;
                                             headers['auth'] = tokenarray;
@@ -384,132 +382,71 @@ ProfileManager.prototype = {
         var token = req.header.auth.token;
         var id = item.userId;
         var responseHeader = {};
-        
-        if (!id){
-            console.log("Getting requesters user info");
-            
-            self.docdatabase.checkauth(token, function(err, authentication){
-                if(err){
-                    res.status(400).send({statusText: "Unauthorized"});
-                } else{
-                    self.docdatabase.getItem(id, function(err, doc){
-                        if (err) {
-                            res.status(400).send({statusText: "Could not retrive user data."}); //internal error
 
-                            var errorentry = {}; //schema for errorlog
-                            errorentry['file'] = "profileManager.getuserinfo";
-                            errorentry['Status'] = 'Could not retrive user data from AccountLog using the profileManager.';
+        self.docdatabase.checkauth(token, function(err, authentication){
+            if(err){
+                res.status(400).send({statusText: "Unauthorized"});
+            }
+            self.docdatabase.getItem(id, function(err, doc){
+                if (err) {
+                    res.status(400).send({statusText: "Could not retrive user data."}); //internal error
 
-                            self.adderror(errorentry, function(err){ //log in error database
-                               if (err){
-                                   callback(err);
-                               } 
-                            });
-                        } else {
-                            var accountinglog = {};
-                            accountinglog['accountID'] = id;
-                            accountinglog['file'] = 'profileManager.getuserinfo';
-                            accountinglog['status'] = 'AccountLog database was accessed to get personal data.';
+                    var errorentry = {}; //schema for errorlog
+                    errorentry['file'] = "profileManager.getuserinfo";
+                    errorentry['Status'] = 'Could not retrive user data from AccountLog using the profileManager.';
 
-                            self.addevent(accountinglog, function(err){ //add event item
-                               if (err){
-                                   throw(err);
-                               } 
-                            });
-
-                            responseHeader['data'] = doc;
-                            self.docdatabase.encodeauth(id, function(err, token){
-                                if (err){
-                                    throw(err);
-                                }else{
-                                    var headers = [];
-                                    var tokenarray = [];
-                                    tokenarray['token'] = token;
-                                    headers['auth'] = tokenarray;
-                                    responseHeader['headers'] = headers;
-                                    responseHeader['status'] = 200;
-                                    responseHeader['statusText'] = 'Succesfully retrived data personal data.';
-
-                                    console.log(responseHeader);
-                                    res.status(200).send(responseHeader); //not sure if this is right
-                                }
-                            });
-                        }
+                    self.adderror(errorentry, function(err){ //log in error database
+                       if (err){
+                           callback(err);
+                       } 
                     });
-                }
+                } 
+                var accountinglog = {};
+                accountinglog['accountID'] = id;
+                accountinglog['file'] = 'profileManager.getuserinfo';
+                accountinglog['status'] = 'AccountLog database was accessed to get data.';
+
+                self.addevent(accountinglog, function(err){ //add event item
+                   if (err){
+                       throw(err);
+                   } 
+                });
+
+                responseHeader['data'] = doc;
+                self.docdatabase.encodeauth(id, function(err, token){
+                    if (err){
+                        throw(err);
+                    }
+                    var headers = [];
+                    var tokenarray = [];
+                    tokenarray['token'] = token;
+                    headers['auth'] = tokenarray;
+                    responseHeader['headers'] = headers;
+                    responseHeader['status'] = 200;
+                    responseHeader['statusText'] = 'Succesfully retrived data.';
+
+                    console.log(responseHeader);
+                    res.status(200).send(responseHeader); //not sure if this is right
+                });
             });
+        });
             
-        }else{
-            console.log("Requester getting someone else's info");
-            
-            self.docdatabase.checkauth(token, function(err, authentication){
-                if(err){
-                    res.status(400).send({statusText: "Unauthorized"});
-                } else{
-                    self.docdatabase.getItem(id, function(err, doc){
-                        if (err) {
-                            res.status(400).send({statusText: "Could not retrive user data."}); //internal error
-
-                            var errorentry = {}; //schema for errorlog
-                            errorentry['file'] = "profileManager.getuserinfo";
-                            errorentry['Status'] = 'Could not retrive user data from AccountLog using the profileManager.';
-
-                            self.adderror(errorentry, function(err){ //log in error database
-                               if (err){
-                                   callback(err);
-                               } 
-                            });
-                        } else {
-                            var accountinglog = {};
-                            accountinglog['accountID'] = id;
-                            accountinglog['file'] = 'profileManager.getuserinfo';
-                            accountinglog['status'] = 'AccountLog database was accessed to get teacher data.';
-
-                            self.addevent(accountinglog, function(err){ //add event item
-                               if (err){
-                                   throw(err);
-                               } 
-                            });
-
-                            responseHeader['data'] = doc;
-                            self.docdatabase.encodeauth(userid, function(err, token){
-                                if (err){
-                                    throw(err);
-                                }else{
-                                    var headers = [];
-                                    var tokenarray = [];
-                                    tokenarray['token'] = token;
-                                    headers['auth'] = tokenarray;
-                                    responseHeader['headers'] = headers;
-                                    responseHeader['status'] = 200;
-                                    responseHeader['statusText'] = 'Succesfully retrived data teacher data.';
-
-                                    console.log(responseHeader);
-                                    res.render('index');
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-            
-        }
     },
     
     getUserInfofromLogin: function(req, res){
         var self = this;
         var item = req.query;
         var token = req.header.auth.token;
-        var id = item.userId;
-        id = atob(id);
+        var email = item.email;
+        email = atob(id);
         var psw = item.psw;
         psw = atob(psw);
         var responseHeader = {};
         
-        if(!id || !psw){
+        if(!email || !psw){
             res.status(400).send({error: "Invalid email"});
         }else{
-            self.docdatabase.getItem(id, function(err, doc){
+            self.docdatabase.getLogin(email, function(err, doc){
                 if (err) {
                     res.status(400).send({statusText: "Could not retrive user data from login info."}); //internal error
                         
@@ -522,41 +459,39 @@ ProfileManager.prototype = {
                            callback(err);
                        } 
                     });
-                } else {
-                    //check psw
-                    if (psw == doc.Account.psw){
-                        var accountinglog = {};
-                        accountinglog['accountID'] = id;
-                        accountinglog['file'] = 'profileManager.getUserInfofromLogin';
-                        accountinglog['status'] = 'AccountLog database was accessed to get personal info.';
+                } 
+                //check psw
+                if (psw == doc.Account.psw){
+                    var accountinglog = {};
+                    accountinglog['accountID'] = id;
+                    accountinglog['file'] = 'profileManager.getUserInfofromLogin';
+                    accountinglog['status'] = 'AccountLog database was accessed to get personal info.';
 
-                        self.addevent(accountinglog, function(err){ //add event item
-                           if (err){
-                               throw(err);
-                           } 
-                        });
-                        
-                        responseHeader['data'] = doc;
-                        self.docdatabase.encodeauth(id, function(err, token){
-                            if (err){
-                                throw(err);
-                            }else{
-                                var headers = [];
-                                var tokenarray = [];
-                                tokenarray['token'] = token;
-                                headers['auth'] = tokenarray;
-                                responseHeader['headers'] = headers;
-                                responseHeader['status'] = 200;
-                                responseHeader['statusText'] = 'Succesfully retrived data from login info.';
-                     
-                                //fix after intergration
-                                console.log(responseHeader);
-                                res.status(200).send(responseHeader); //not sure if this is right
-                            }
-                        });
-                    }else{
-                        res.status(400).send({error: "Invalid password"});
-                    }
+                    self.addevent(accountinglog, function(err){ //add event item
+                       if (err){
+                           throw(err);
+                       } 
+                    });
+
+                    responseHeader['data'] = doc;
+                    self.docdatabase.encodeauth(doc.id, function(err, token){
+                        if (err){
+                            throw(err);
+                        }
+                        var headers = [];
+                        var tokenarray = [];
+                        tokenarray['token'] = token;
+                        headers['auth'] = tokenarray;
+                        responseHeader['headers'] = headers;
+                        responseHeader['status'] = 200;
+                        responseHeader['statusText'] = 'Succesfully retrived data from login info.';
+
+                        //fix after intergration
+                        console.log(responseHeader);
+                        res.status(200).send(responseHeader); //not sure if this is right
+                    });
+                }else{
+                    res.status(400).send({error: "Invalid password"});
                 }
             });
         }
