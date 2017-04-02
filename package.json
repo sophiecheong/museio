@@ -18,7 +18,12 @@
   "homepage": "https://github.com/sophiecheong/museio#readme",
   "dependencies": {
     "axios": "~0.15.0",
+    "async": "^2.1.2",
+    "body-parser": "~1.15.2",
+    "cookie-parser": "~1.4.3",
+    "serve-favicon": "~2.3.0",
     "express": "~4.15.2",
+    "documentdb": "^1.10.0",
     "material-ui": "~0.17.0",
     "react": "~15.4.2",
     "react-dom": "~15.4.2",
@@ -29,9 +34,10 @@
     "redux-logger": "~2.8.2",
     "react-tap-event-plugin": "~2.0.1",
     "react-big-calendar": "~0.13.0",
-    "body-parser": "~1.8.1",
-    "moment": "~2.18.1"
-
+    "moment": "~2.18.1",
+    "morgan": "~1.7.0",
+    "btoa": "~1.1.2",
+    "atob": "~2.0.3"
   },
   "devDependencies": {
     "babel-core": "~6.23.1",
