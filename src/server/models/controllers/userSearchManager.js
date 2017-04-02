@@ -23,25 +23,52 @@ userSearchManager.prototype = {
             self.docdatabase.checkauth(token, function(err, authentication){
                 if(err){
                     res.status(400).send({error: "Unauthorized"});
-                }
-                var data = {};
+                };
+                var data = [];
                 var querySpec = {
-                    query: 'SELECT * FROM root r WHERE r.mlocation=@mlocation AND r.instruments[0].instr=@instruments.instr',
+                    query: 'SELECT * FROM root r WHERE r.mlocation=@location',
                     parameters: [{
-                        name:'@mlocation',
+                        name:'@location',
                         value: item.mlocation
-                    },{
-                        name:'@instruments.instr',
-                        value: item.instr
                     }]
                 };
 
-                self.docdatabase.find(querySpec, function (err, items){
+                self.docdatabase.find(querySpec, function (err, docs){
                     if(err){
                         throw(err);
-                    }else{
-                        console.log(items);
                     }
+                    var size = Object.keys(docs).length;
+                    var count = 0;
+                    for (var i =0; i<size; i++){
+                        if(docs[i].Account.status == 1){
+                            for (var k=0; k<3; k++){
+                                if(docs[i].instruments[k]){
+                                    if(docs[i].instruments[k].instr == item.instr){
+                                        delete docs[i].Account;
+                                        delete docs[i].verify;
+                                        delete docs[i].dateCreated;
+                                        delete docs[i].dateUpdated;
+                                        data[count] = docs[i];
+                                        count++;
+                                    }    
+                                }
+                            }
+                        }
+                    }
+                    self.docdatabase.encodeauth(item.userId, function(err, token){
+                       if(err){
+                           throw(err);
+                       } 
+                        var headers = {};
+                        headers['token'] = token;
+                        responseHeader['data']=data;
+                        responseHeader['headers'] = headers;
+                        responseHeader['status'] = 200;
+                        responseHeader['statusText'] = 'Query completed';
+                        
+                        console.log(responseHeader);
+                        res.status(200).send(responseHeader);
+                    });
                 });
             });
         }
