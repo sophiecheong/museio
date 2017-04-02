@@ -26,7 +26,7 @@ userSearchManager.prototype = {
                 }
                 var data = {};
                 var querySpec = {
-                    query: 'SELECT * FROM root r WHERE r.mlocation=@mlocation, r.instruments.instr=@instruments.instr',
+                    query: 'SELECT * FROM root r WHERE r.mlocation=@mlocation AND r.instruments[0].instr=@instruments.instr',
                     parameters: [{
                         name:'@mlocation',
                         value: item.mlocation
