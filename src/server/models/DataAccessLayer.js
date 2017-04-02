@@ -109,6 +109,26 @@ DataAccess.prototype = {
         });
     },
     
+    getLogin: function (itemId, callback) {
+        var self = this;
+
+        var querySpec = {
+            query: 'SELECT * FROM root r WHERE r.Account.email = @id',
+            parameters: [{
+                name: '@id',
+                value: itemId
+            }]
+        };
+
+        self.client.queryDocuments(self.collection._self, querySpec).toArray(function (err, results) {
+            if (err) {
+                callback(err);
+            } else {
+                callback(null, results[0]);
+            }
+        });
+    },
+    
     //1. get item needing updating doc
     //2. update doc
     //3. replace doc
