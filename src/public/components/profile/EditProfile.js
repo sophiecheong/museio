@@ -96,8 +96,8 @@ class EditProfile extends Component {
                         disabled={ true }
                         style={ editStyle.editItems.rightHalf } />
 
-                    <TextField id="mLocation" key="mLocation"
-                        value={ this.user.mLocation }
+                    <TextField id="mlocation" key="mlocation"
+                        value={ this.user.mlocation }
                         floatingLabelText="Location"
                         hintText="Enter your main location"
                         onChange={ this.handleTextChange }

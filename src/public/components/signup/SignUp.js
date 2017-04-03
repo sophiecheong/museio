@@ -24,7 +24,7 @@ export default class SignUp extends Component {
             password: '',
             firstName: '',
             lastName: '',
-            mLocation: '',
+            mlocation: '',
             hrRate:'',
             instruments: [{
                 instr: '',

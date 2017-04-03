@@ -21,7 +21,7 @@ class Browse extends Component {
 		this.state = { updateSearch: 0 };
 
 		this.search = {
-			mLocation: props.searchCriteria.mLocation,
+			mlocation: props.searchCriteria.mlocation || "Toronto",
 			instrument: props.searchCriteria.instrument,
 			cert: props.searchCriteria.cert
 		};
@@ -56,7 +56,7 @@ class Browse extends Component {
 						{ (user.verify) && <VerifiedIcon /> }
 					</h3>
 					<Subheader style={ browseStyle.location }> 
-						{ user.mLocation } &middot; &nbsp;
+						{ user.mlocation } &middot; &nbsp;
 						{ (user.hrRate) && "$" + user.hrRate + "/hour" }
 					</Subheader>
 					<div style={ browseStyle.bio }> { user.bio } </div>
@@ -66,13 +66,13 @@ class Browse extends Component {
 	}
 
 	render() {
-		const canSearch = !!this.search.instrument && !!this.search.mLocation;
+		const canSearch = !!this.search.instrument && !!this.search.mlocation;
 		const that = this;
 		return(
 			<div style={ browseStyle.container } >
 				<Paper style={ browseStyle.paperContainer }> 
-					<TextField id="mLocation" key="mLocation"
-                        value={ this.search.mLocation }
+					<TextField id="mlocation" key="mlocation"
+                        value={ this.search.mlocation }
                         floatingLabelText="Location"
                         hintText="Enter a location"
                         style={ browseStyle.searchItem }

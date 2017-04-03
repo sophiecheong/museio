@@ -19,7 +19,7 @@ class LandingPage extends Component {
 		this.state = { updated: 0 };
 
 		this.search = {
-			mLocation: props.currentUser.mLocation || "Toronto",
+			mLocation: props.currentUser.mlocation || "Toronto",
 			instrument: '',
 			cert: ''
 		};

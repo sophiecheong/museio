@@ -194,8 +194,9 @@ export default class userAction {
 		const that = this;
 		return dispatch => {
 			dispatch(that.receiveSearchCriteria(criteria));
-			dispatch(that.receiveUsers(that.dummyList)); // dispatch(that.receiveUsers(undefined));
-			return axios.get('/api/users', criteria).then((data) => dispatch(that.receiveUsers(data)));
+			dispatch(that.receiveUsers([]));
+			return axios.get('/api/search', { params: criteria })
+				.then((response) => dispatch(that.receiveUsers(response.data.data)));
 		}
 	}
 
@@ -203,10 +204,10 @@ export default class userAction {
 		const that = this;
 		return dispatch => {
 			dispatch(that.receiveUser(undefined));
-			return axios.get('/api/user', { userId })
-				.then((data) => {
-					isCurrentUser? dispatch(that.receiveCurrentUser(data)) : dispatch(that.receiveUser(data));
-					dispatch(that.getMetrics(userId, 1 == data.status, isCurrentUser));
+			return axios.get('/api/user', { params: { userId }})
+				.then((response) => {
+					isCurrentUser? dispatch(that.receiveCurrentUser(response.data.data)) : dispatch(that.receiveUser(response.data.data));
+					dispatch(that.getMetrics(userId, 1 == response.data.data.Account.status, isCurrentUser));
 				});
 		}
 	}
@@ -219,12 +220,12 @@ export default class userAction {
 			isCurrentUser ? 
 				dispatch(that.receiveCurrentAvgRating(undefined)) : 
 				dispatch(that.receiveAvgRating(undefined));
-			return axios.get('/api/metric', option)
-				.then((data) => {
-					dispatch(that.receiveMetrics(data.metrics));
+			return axios.get('/api/metric', { params: option })
+				.then((response) => {
+					dispatch(that.receiveMetrics(response.data.data.metricData));
 					isCurrentUser ? 
-						dispatch(that.receiveCurrentAvgRating(data.avgRating)) : 
-						dispatch(that.receiveAvgRating(data.avgRating));
+						dispatch(that.receiveCurrentAvgRating(response.data.data.avgRating)) : 
+						dispatch(that.receiveAvgRating(response.data.data.avgRating));
 				});
 		}
 	}

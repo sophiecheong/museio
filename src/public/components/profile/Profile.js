@@ -14,38 +14,52 @@ import userAction from '../userAction';
 
 class Profile extends Component {
 	constructor(props) {
-		super();
+		super(props);
+
+		this.userId = "me" == props.params.userId ? props.currentUser.id : props.params.userId;
+		console.log(this.userId);
 
 		this.renderMetrics = this.renderMetrics.bind(this);
+		this.checkUser = this.checkUser.bind(this);
 	}
 
 	componentDidMount() {
-		const { dispatch, currentUser } = this.props;
-		const userId = "me" == this.props.params.userId ? currentUser.id : this.props.params.userId;
-		dispatch(userAction.getUser(userId, "me" == this.props.params.userId));
+		const { dispatch } = this.props;
+		dispatch(userAction.getUser(this.userId, "me" == this.props.params.userId));
+	}
+
+	checkUser() {
+		const { params, dispatch } = this.props;
+		if("me" != params.userId && params.userId !== this.userId) {
+			this.userId = this.props.params.userId;
+			dispatch(userAction.getUser(this.userId, "me" == params.userId));
+		}
 	}
 
 	renderMetrics() {
+		this.checkUser();
+
 		const metrics = this.props.metrics;
 		const viewingUser = "me" == this.props.params.userId ? this.props.currentUser : this.props.user;
-		const isTeacher = 1 == viewingUser.status;
+		const isTeacher = viewingUser.Account && 1 == viewingUser.Account.status;
 		return(
 			<div>
 				<Subheader> { isTeacher ? "Reviews" : "Reviews Made" } </Subheader>
 				{ metrics.map(function(metric) {
-					const user = isTeacher ? metric.reviewer : metric.reviewee;
+					const user = isTeacher ? metric.reviewer[0] : metric.reviewee[0];
+					const userId = isTeacher ? metric.reviewerId : metric.revieweeId;
 					return(
 						<div style={{ overflow: "auto" }} key={ metric.id } >
 							<ProfileImage profImage={ user.profImage } width="15%" />
 							<div style={{ float: "left", margin: "0 5%", width: "70%" }}>
-								<Link to={ "/profile/" + user.id } > 
+								<Link to={ "/profile/" + userId } > 
 									<h4 style={ profileStyle.name }>
 										{ user.firstName } { user.lastName }
 									</h4>
 								</Link>
 								<Subheader style={ profileStyle.metricRating }> 
 									<StarRating stars={ metric.avgRating } />
-									{ metric.dateCreated.toLocaleDateString() }
+									{ new Date(metric.dateCreated).toLocaleDateString() }
 								</Subheader>
 								<span style={ profileStyle.bio }> 
 									{ metric.review }
@@ -60,7 +74,7 @@ class Profile extends Component {
 
 	render() {
 		const user = "me" == this.props.params.userId ? this.props.currentUser : this.props.user;
-		const isTeacher = 1 == user.status;
+		const isTeacher = user.Account && 1 == user.Account.status;
 		return(
 			<div>
 				<Paper style={ profileStyle.accountContainer } >
@@ -72,7 +86,7 @@ class Profile extends Component {
 						</h2>
 						<Subheader style={ profileStyle.location }> 
 							{ (user.avgRating && isTeacher) && <StarRating stars={ user.avgRating } /> } &middot; &nbsp;
-							{ user.mLocation } &middot; &nbsp;
+							{ user.mlocation } &middot; &nbsp;
 							{ (user.hrRate && isTeacher) && "$" + user.hrRate + "/hour" }
 						</Subheader>
 						<span style={ profileStyle.bio }> { user.bio } </span>

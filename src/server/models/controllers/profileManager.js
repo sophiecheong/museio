@@ -359,13 +359,13 @@ ProfileManager.prototype = {
     getuserinfo: function(req, res){
         var self = this;
         var item = req.query;
-        var token = req.header.auth.token;
+        var token = req.headers.auth;
         var id = item.userId;
         var responseHeader = {};
-
         self.docdatabase.checkauth(token, function(err, authentication){
             if(err){
-                res.status(400).send({statusText: "Unauthorized"});
+                res.status(400).send({statusText: "Unauthorized"}).end();
+                return;
             }
             self.docdatabase.getItem(id, function(err, doc){
                 if (err) {
@@ -380,6 +380,8 @@ ProfileManager.prototype = {
                            callback(err);
                        } 
                     });
+                    res.end();
+                    return;
                 } 
                 var accountinglog = {};
                 accountinglog['accountID'] = id;
@@ -396,12 +398,10 @@ ProfileManager.prototype = {
                 self.docdatabase.encodeauth(id, function(err, token){
                     if (err){
                         throw(err);
+                        return;
                     }
-                    var headers = [];
-                    var tokenarray = [];
-                    tokenarray['token'] = token;
-                    headers['auth'] = tokenarray;
-                    responseHeader['headers'] = headers;
+                    
+                    responseHeader['headers'] = { token };
                     responseHeader['status'] = 200;
                     responseHeader['statusText'] = 'Succesfully retrived data.';
 

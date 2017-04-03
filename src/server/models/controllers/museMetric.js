@@ -172,7 +172,9 @@ MetricManager.prototype = {
         });
     }, 
     
-    getoverallRating: function(id){
+    getoverallRating: function(id, callback){
+        const self = this;
+
          var querySpec = {
             query: 'SELECT * FROM root r WHERE r.revieweeId=@revieweeId',
             parameters: [{
@@ -180,39 +182,44 @@ MetricManager.prototype = {
                 value: id
             }]
         };
-         self.docdatabase.find(querySpec, function (err, items){
+
+        self.docdatabase.find(querySpec, function (err, items){
             if(err){
                 throw(err);
+                return;
             }
             var size = Object.keys(items).length;
              var count = 0;
              for (var i=0; i<size; i++){
                 count = count + items[i].avgRating;
              }
-             var avg = count/size;
-             return avg; 
-         });
+
+             callback(count/size); 
+        });
     },
     
     //get 
     getReviews: function(req, res){
         var self = this;
         var item = req.query;
-        var token = req.header.auth.token;
+        var token = req.headers.auth;
         var reviewerId = item.reviewerId;
         var revieweeId = item.revieweeId;
         var responseHeader = {};
         var userid = '';
         
         if(!token){
-            res.status(400).send({error: "Unauthorized"});
+            res.status(400).send({error: "Unauthorized"}).end();
+            return;
         }
         if (reviewerId){
             self.accountdatabase.checkauth(token, function(err, authentication){
                 if(err){
-                    res.status(400).send({error: "Unauthorized"});
+                    res.status(400).send({error: "Unauthorized"}).end();
+                    return;
                 }
-                var data = [];
+                var data = {};
+                var metricData = [];
 
                 var querySpec = {
                     query: 'SELECT * FROM root r WHERE r.reviewerId=@reviewerId',
@@ -223,26 +230,25 @@ MetricManager.prototype = {
                 };
 
                 self.docdatabase.find(querySpec, function (err, items){
-                    if(err){
+                    if(err || !items){
                         throw(err);
+                        return;
                     }
                     var size = Object.keys(items).length;
                     if (size>5){
                         size =5;
                     }
                     for (var i=0; i<size; i++){
-                        data[i] = items[i];
+                        metricData[i] = items[i];
                     }
-                    responseHeader['data'] = data;
-                    self.accountdatabase.encodeauth(userid, function(err, token){
+                    data['metricData'] = metricData;
+                    self.accountdatabase.encodeauth(reviewerId, function(err, token){
                         if (err){
                             throw(err);
+                            return;
                         }
-                        var headers = [];
-                        var tokenarray = [];
-                        tokenarray['token'] = token;
-                        headers['auth'] = tokenarray;
-                        responseHeader['headers'] = headers;
+                        responseHeader['data'] = data;
+                        responseHeader['headers'] = { token };
                         responseHeader['status'] = 200;
                         responseHeader['statusText'] = 'Succesfully retrived data from login info.';
 
@@ -255,13 +261,16 @@ MetricManager.prototype = {
         } else if (revieweeId){
             self.accountdatabase.checkauth(token, function(err, authentication){
                 if(err){
-                    res.status(400).send({error: "Unauthorized"});
+                    res.status(400).send({error: "Unauthorized"}).end();
+                    return;
                 }
-                var data = [];
+                var metricData = [];
+                var data = {};
 
                 self.accountdatabase.getItem(revieweeId, function(err, doc){
-                   if(err){
+                   if(err || !doc){
                        throw(err);
+                       return;
                    }
                    var querySpec = {
                         query: 'SELECT * FROM root r WHERE r.revieweeId=@revieweeId',
@@ -272,36 +281,38 @@ MetricManager.prototype = {
                     };
 
                     self.docdatabase.find(querySpec, function (err, items){
-                        if(err){
+                        if(err || !items){
                             throw(err);
+                            return;
                         }
                         var size = Object.keys(items).length;
                         if (size>5){
                             size =5;
                         }
                         for (var i=0; i<size; i++){
-                            data[i] = items[i];
+                            metricData[i] = items[i];
                         }
-                        var avg = self.getoverallRating(revieweeId);
-                        data['avgRating'] = avg;
+                        self.getoverallRating(revieweeId, (avg) => {
+                            data['avgRating'] = avg;
+                            data['metricData'] = metricData;
 
-                        responseHeader['data'] = data;
-                        self.accountdatabase.encodeauth(userid, function(err, token){
-                            if (err){
-                                throw(err);
-                            }
-                            var headers = [];
-                            var tokenarray = [];
-                            tokenarray['token'] = token;
-                            headers['auth'] = tokenarray;
-                            responseHeader['headers'] = headers;
-                            responseHeader['status'] = 200;
-                            responseHeader['statusText'] = 'Succesfully retrived data from login info.';
+                            responseHeader['data'] = data;
+                            self.accountdatabase.encodeauth(revieweeId, function(err, token){
+                                if (err){
+                                    throw(err);
+                                    return;
+                                }
 
-                            //fix after intergration
-                            console.log(responseHeader);
-                            res.status(200).send(responseHeader); //not sure if this is right
-                        });         
+                                responseHeader['headers'] = { token };
+                                responseHeader['status'] = 200;
+                                responseHeader['statusText'] = 'Succesfully retrived data from login info.';
+
+                                //fix after intergration
+                                console.log(responseHeader);
+                                res.status(200).send(responseHeader); //not sure if this is right
+                            });         
+                        });
+                        
                     });
                 });                    
             });    
