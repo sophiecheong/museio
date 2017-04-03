@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
+ import { Router, browserHistory } from 'react-router';
+
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -12,12 +14,13 @@ import userAction from '../userAction';
 
 class Login extends Component {
     constructor(props) {
-        super();
+        super(props);
 
         this.state = { 
             open: false,
             email: '',
-            password: '' };
+            password: '',
+            errorMessage: '' };
 
         this.handleOpen = this.handleOpen.bind(this);
         this.handleClose = this.handleClose.bind(this);
@@ -27,10 +30,14 @@ class Login extends Component {
 
     login() {
         const { email, password } = this.state;
-        console.log(this.props);
-        this.props.dispatch(userAction.login({ 
-            email: window.btoa(email) ,  
-            password: window.btoa(password) }));
+        const user = { email: window.btoa(email), psw: window.btoa(password) };
+        this.props.dispatch(userAction.login(user)).then((data) => {
+            if(!!data.user) {
+                browserHistory.push('/profile/me');
+            } else {
+                this.setState({ errorMessage: "Login failed" });
+            }
+        });
     }
 
     handleOpen () {
@@ -84,6 +91,10 @@ class Login extends Component {
                         <Divider style={ loginStyle.dividerRight } />
                     </div>
 
+                    <div style={ !!this.state.errorMessage? { color: "red" } : { display: "none" }} > 
+                        { this.state.errorMessage } 
+                    </div>
+
                     <TextField id="email" key="email"
                         value={ this.state.email }
                         floatingLabelText="Email"
@@ -121,7 +132,6 @@ class Login extends Component {
 
 function mapStateToLogin(state) {
     console.log(state);
-    const {  } = state.userReducer;
     return {  };
 }
 

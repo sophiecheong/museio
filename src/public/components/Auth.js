@@ -12,8 +12,8 @@ axios.interceptors.request.use(function (config) {
 // Add a response interceptor
 axios.interceptors.response.use(function (response) {
     // Do something with response data
-
-    console.log(response);
+    console.log("response", response);
+    axios.defaults.headers.common['Auth'] = response.headers.token;
     return response;
   }, function (error) {
     // Do something with response error

@@ -48,7 +48,6 @@ MuseServer.post('/metric', metricman.addReview.bind(metricman));
 MuseServer.get('/metric', metricman.getReviews.bind(metricman));
 MuseServer.get('/search', userman.searchdatabase.bind(userman));
 
-MuseServer.post('/schedule', scheduleman.addSchedule.bind(scheduleman));
 MuseServer.get('/schedule', scheduleman.getSchedules.bind(scheduleman));
 
 MuseServer.get('/', function(req, res, next) {

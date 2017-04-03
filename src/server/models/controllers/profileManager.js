@@ -416,18 +416,18 @@ ProfileManager.prototype = {
     getUserInfofromLogin: function(req, res){
         var self = this;
         var item = req.query;
-        var token = req.header.auth.token;
+        //var token = req.header.auth.token;
         var email = item.email;
         email = atob(email);
         var psw = item.psw;
         psw = atob(psw);
         var responseHeader = {};
-        
+
         if(!email || !psw){
             res.status(400).send({error: "Invalid email"});
         }else{
             self.docdatabase.getLogin(email, function(err, doc){
-                if (err) {
+                if (err || !doc) {
                     res.status(400).send({statusText: "Could not retrive user data from login info."}); //internal error
                         
                     var errorentry = {}; //schema for errorlog
@@ -439,6 +439,8 @@ ProfileManager.prototype = {
                            callback(err);
                        } 
                     });
+                    res.end();
+                    return;
                 } 
                 //check psw
                 if (psw == doc.Account.psw){
@@ -455,14 +457,12 @@ ProfileManager.prototype = {
 
                     responseHeader['data'] = doc;
                     self.docdatabase.encodeauth(doc.id, function(err, token){
+                        console.log("token", token);
                         if (err){
                             throw(err);
                         }
-                        var headers = [];
-                        var tokenarray = [];
-                        tokenarray['token'] = token;
-                        headers['auth'] = tokenarray;
-                        responseHeader['headers'] = headers;
+
+                        responseHeader['headers'] = { token };
                         responseHeader['status'] = 200;
                         responseHeader['statusText'] = 'Succesfully retrived data from login info.';
 
