@@ -3,7 +3,7 @@ var config = require('./config');
 var profileManager = require('./models/controllers/profileManager');
 var metricManager = require('./models/controllers/museMetric');
 var searchManager = require('./models/controllers/userSearchManager');
-var scheduleManager = require('./models/controllers/schedyleManager');
+var scheduleManager = require('./models/controllers/scheduleManager');
 var AccessManager = require('./models/DataAccessLayer');
 
 const express = require('express');
@@ -20,7 +20,7 @@ var profileController = new AccessManager(docDbClient, config.databaseId, config
 var metricController = new AccessManager(docDbClient, config.databaseId, config.MetricCollId);
 var scheduleController = new AccessManager(docDbClient, config.databaseId, config.ScheduleCollId);
 
-default databases that store all actions
+//default databases that store all actions
 var eventlog = new AccessManager(docDbClient, config.databaseId, config.EventCollId);
 var errorlog = new AccessManager(docDbClient, config.databaseId, config.ErrorCollId);
 
@@ -31,7 +31,7 @@ scheduleController.init();
 eventlog.init();
 errorlog.init();
 
-set up profile manager controller
+//set up profile manager controller
 var profileman = new profileManager(profileController, eventlog, errorlog);
 var metricman = new metricManager(metricController, profileController, eventlog, errorlog);
 var userman = new searchManager(profileController, eventlog, errorlog);
