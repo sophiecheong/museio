@@ -59,16 +59,25 @@ userSearchManager.prototype = {
                             }
                         }
                     }
-                    self.docdatabase.encodeauth(item.userId, function(err, token){
-                       if(err){
-                           throw(err);
-                       } 
-                        responseHeader['headers'] = token;
-                        responseHeader['status'] = 200;
-                        responseHeader['statusText'] = 'Query completed';
+                    self.docdatabase.decodeauth(token, function(err, items){
+                        if (err || !items){
+                            res.status(400).send({error: "Unauthorized"});
+                            res.end();
+                            return;
+                        }
+                        var id = items.substring(2);
                         
-                        console.log(responseHeader);
-                        res.status(200).send(responseHeader);
+                        self.docdatabase.encodeauth(id, function(err, token){
+                           if(err){
+                               throw(err);
+                           } 
+                            responseHeader['headers'] = token;
+                            responseHeader['status'] = 200;
+                            responseHeader['statusText'] = 'Query completed';
+
+                            console.log(responseHeader);
+                            res.status(200).send(responseHeader);
+                        });
                     });
                 });
             });
