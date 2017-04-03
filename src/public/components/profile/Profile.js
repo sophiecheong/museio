@@ -22,7 +22,7 @@ class Profile extends Component {
 	componentDidMount() {
 		const { dispatch, currentUser } = this.props;
 		const userId = "me" == this.props.params.userId ? currentUser.id : this.props.params.userId;
-		//dispatch(this.getUser(userId, "me" == this.props.params.userId));
+		dispatch(userAction.getUser(userId, "me" == this.props.params.userId));
 	}
 
 	renderMetrics() {

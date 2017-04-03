@@ -215,7 +215,7 @@ export default class userAction {
 		const that = this;
 		const option = isTeacher ? { revieweeId: userId } : { reviewerId: userId };
 		return dispatch => {
-			dispatch(that.receiveMetrics(undefined));
+			dispatch(that.receiveMetrics([]));
 			isCurrentUser ? 
 				dispatch(that.receiveCurrentAvgRating(undefined)) : 
 				dispatch(that.receiveAvgRating(undefined));

@@ -3,7 +3,7 @@ import userAction from './userAction';
 
 export default combineReducers({
 
-	currentUser: function (state = userAction.dummyUser, action) {
+	currentUser: function (state = [], action) {
 		switch (action.type) {
 			case userAction.CURRENT_USER:
 				return Object.assign({}, state, action.user);
@@ -43,7 +43,7 @@ export default combineReducers({
 		}
 	},
 
-	metrics: function (state = userAction.dummyMetrics, action) {
+	metrics: function (state = [], action) {
 		switch (action.type) {
 			case userAction.METRIC_LIST:
 				return action.metrics;

@@ -3,7 +3,7 @@ import scheduleAction from './scheduleAction';
 
 export default combineReducers({
 
-	currentSchedules: function (state = scheduleAction.dummySchedules, action) {
+	currentSchedules: function (state = [], action) {
 		switch (action.type) {
 			case scheduleAction.CURRENT_SCHEDULE:
 				return action.schedules;

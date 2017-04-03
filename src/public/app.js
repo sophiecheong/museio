@@ -10,6 +10,8 @@ import configureStore from './configureStore';
 import Theme from './components/style/theme';
 import componentStyles from './components/style/components';
 
+import axios from "./components/Auth";
+
 import Header from './components/header/Header';
 import EmptyParentComponent from './components/dummy/EmptyParentComponent';
 import About from './components/about/About';
