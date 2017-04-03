@@ -16,7 +16,7 @@ userSearchManager.prototype = {
     searchdatabase: function (res, req){
         var self = this;
         var item = req.query;
-        var token = req.header.auth.token;
+        var token = req.header;
         var responseHeader = {};
         
         if(!token){
@@ -25,6 +25,8 @@ userSearchManager.prototype = {
             self.docdatabase.checkauth(token, function(err, authentication){
                 if(err){
                     res.status(400).send({error: "Unauthorized"});
+                    res.end();
+                    return;
                 };
                 var data = [];
                 var querySpec = {
@@ -36,7 +38,7 @@ userSearchManager.prototype = {
                 };
 
                 self.docdatabase.find(querySpec, function (err, docs){
-                    if(err){
+                    if(err || !docs){
                         throw(err);
                     }
                     var size = Object.keys(docs).length;
@@ -57,19 +59,25 @@ userSearchManager.prototype = {
                             }
                         }
                     }
-                    self.docdatabase.encodeauth(item.userId, function(err, token){
-                       if(err){
-                           throw(err);
-                       } 
-                        var headers = {};
-                        headers['token'] = token;
-                        responseHeader['data']=data;
-                        responseHeader['headers'] = headers;
-                        responseHeader['status'] = 200;
-                        responseHeader['statusText'] = 'Query completed';
+                    self.docdatabase.decodeauth(token, function(err, items){
+                        if (err || !items){
+                            res.status(400).send({error: "Unauthorized"});
+                            res.end();
+                            return;
+                        }
+                        var id = items.substring(2);
                         
-                        console.log(responseHeader);
-                        res.status(200).send(responseHeader);
+                        self.docdatabase.encodeauth(id, function(err, token){
+                           if(err){
+                               throw(err);
+                           } 
+                            responseHeader['headers'] = token;
+                            responseHeader['status'] = 200;
+                            responseHeader['statusText'] = 'Query completed';
+
+                            console.log(responseHeader);
+                            res.status(200).send(responseHeader);
+                        });
                     });
                 });
             });

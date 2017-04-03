@@ -51,7 +51,7 @@ ProfileManager.prototype = {
     addorUpdateTeacher: function (req, res) {
         var self = this;
         var item = req.body.user;
-        var token = req.header.auth.token;
+        var token = req.header;
         var responseHeader = {};
         
         //check update or new user 
@@ -62,6 +62,8 @@ ProfileManager.prototype = {
             if (!item.email || !item.psw || !item.firstName || !item.lastName || !item.mlocation || !item.hrRate || !item.instruments){
                 //send back error response
                 res.status(400).send({statusText: "Missing Parameters"}); //bad request
+                res.end();
+                return;
                 
             }            
             item['verify'] = false;
@@ -87,40 +89,18 @@ ProfileManager.prototype = {
 
             //add user to database
             self.docdatabase.addItem(item, function (err, doc) {
-                if (err) {
+                if (err || !doc) {
                     res.status(500).send({statusText: "Database error could not add new user."}); //internal error
-
-                    var errorentry = {}; //schema for errorlog
-                    errorentry['file'] = "profileManager.addorUpdateTeacher";
-                    errorentry['Status'] = 'Could not add item to AccountLog from the profileManager.';
-
-                    self.adderror(errorentry, function(err){ //log in error database
-                       if (err){
-                           callback(err);
-                       } 
-                    });
+                    res.end();
+                    return;
                 }
-
-                var accountinglog = {};
-                accountinglog['accountID'] = doc.id;
-                accountinglog['file'] = 'profileManager.addorUpdateTeacher';
-                accountinglog['status'] = 'New service provider';
-
-                self.addevent(accountinglog, function(err){ //log event data
-                   if (err){
-                       throw(err);
-                   } 
-                });
 
                 self.docdatabase.encodeauth(doc.id, function(err, token){
                     if (err){
                         throw(err);
                     }
-                    var headers = [];
-                    var tokenarray = [];
-                    tokenarray['token'] = token;
-                    headers['auth'] = tokenarray;
-                    responseHeader['headers'] = headers;
+                    
+                    responseHeader['headers'] = token;
                     responseHeader['status'] = 200;
                     responseHeader['statusText'] = 'Succesfully added new teacher.';
 
@@ -133,20 +113,14 @@ ProfileManager.prototype = {
             self.docdatabase.checkauth(token, function(err, authentication){
                 if(err){
                     res.status(400).send({statusText: "Unauthorized"});
+                    res.end();
+                    return;
                 }
                 self.docdatabase.getItem(id, function(err, doc){
-                    if (err) {
+                    if (err || !doc) {
                         res.status(400).send({statusText: "Could not retrive user data."}); //internal error
-
-                        var errorentry = {}; //schema for errorlog
-                        errorentry['file'] = "profileManager.addorUpdateTeacher";
-                        errorentry['Status'] = 'Could not retrive user data from AccountLog using the profileManager.';
-
-                        self.adderror(errorentry, function(err){ //log in error database
-                           if (err){
-                               callback(err);
-                           } 
-                        });
+                        res.end();
+                        return;
                     } 
                     if (item.mlocation){
                         doc.mlocation = item.mlocation;
@@ -162,37 +136,14 @@ ProfileManager.prototype = {
                     self.docdatabase.UpdateItem(id, doc, function(err){
                         if(err) {
                             res.status(500).send({statusText: "Database error could not update user."}); //internal error
-
-                            var errorentry = {}; //schema for errorlog
-                            errorentry['file'] = "profileManager.addorUpdateTeacher";
-                            errorentry['Status'] = 'Could not update AccountLog from the profileManager.';
-
-                            self.adderror(errorentry, function(err){ //log in error database
-                               if (err){
-                                   callback(err);
-                               } 
-                            });
+                            res.end();
+                            return;
                         }
-                        var accountinglog = {};
-                        accountinglog['accountID'] = id;
-                        accountinglog['file'] = 'profileManager.addorUpdateTeacher';
-                        accountinglog['status'] = 'Update service provider';
-
-                        self.addevent(accountinglog, function(err){ //add event item
-                           if (err){
-                               throw(err);
-                           } 
-                        });
-
                         self.docdatabase.encodeauth(id, function(err, token){
                             if (err){
                                 throw(err);
                             }
-                            var headers = [];
-                            var tokenarray = [];
-                            tokenarray['token'] = token;
-                            headers['auth'] = tokenarray;
-                            responseHeader['headers'] = headers;
+                            responseHeader['headers'] = token;
                             responseHeader['status'] = 200;
                             responseHeader['statusText'] = 'Succesfully updated teacher.';
 
@@ -208,7 +159,7 @@ ProfileManager.prototype = {
     addorUpdateStudent: function (req, res) {
         var self = this;
         var item = req.body.user;
-        var token = req.header.auth.token;
+        var token = req.header;
         var responseHeader = {};
         
         //check update or new user 
@@ -218,6 +169,8 @@ ProfileManager.prototype = {
             //error handling for new user
             if (!item.email || !item.psw || !item.firstName || !item.lastName || !item.mlocation){
                 res.status(400).send({error: "Missing Parameters"}); //bad request
+                res.end();
+                return;
             }
             item['verify'] = false;
             for (data in item){
@@ -241,40 +194,18 @@ ProfileManager.prototype = {
 
             //add user to database
             self.docdatabase.addItem(item, function (err, doc) {
-                if (err) {
+                if (err || !doc) {
                     res.status(500).send({statusText: "Database error could not add new user."}); //internal error
-
-                    var errorentry = {}; //schema for errorlog
-                    errorentry['file'] = "profileManager.addorUpdateStudent";
-                    errorentry['Status'] = 'Could not add item to AccountLog from the profileManager.';
-
-                    self.adderror(errorentry, function(err){ //log in error database
-                       if (err){
-                           callback(err);
-                       } 
-                    });
+                    res.end();
+                    return;
                 } 
-
-                var accountinglog = {};
-                accountinglog['accountID'] = doc.id;
-                accountinglog['file'] = 'profileManager.addorUpdateStudent';
-                accountinglog['status'] = 'New service user';
-
-                self.addevent(accountinglog, function(err){ //log event data
-                   if (err){
-                       throw(err);
-                   } 
-                });
 
                 self.docdatabase.encodeauth(doc.id, function(err, token){
                     if (err){
                         throw(err);
                     }
-                    var headers = [];
-                    var tokenarray = [];
-                    tokenarray['token'] = token;
-                    headers['auth'] = tokenarray;
-                    responseHeader['headers'] = headers;
+
+                    responseHeader['headers'] = token;
                     responseHeader['status'] = 200;
                     responseHeader['statusText'] = 'Succesfully added new student.';
 
@@ -290,18 +221,10 @@ ProfileManager.prototype = {
                     res.status(400).send({statusText: "Unauthorized"});
                 } 
                 self.docdatabase.getItem(id, function(err, doc){
-                    if (err) {
+                    if (err || !doc) {
                         res.status(400).send({statusText: "Could not retrive user data."}); //internal error
-
-                        var errorentry = {}; //schema for errorlog
-                        errorentry['file'] = "profileManager.addorUpdateStudent";
-                        errorentry['Status'] = 'Could not retrive user data from AccountLog using the profileManager.';
-
-                        self.adderror(errorentry, function(err){ //log in error database
-                           if (err){
-                               callback(err);
-                           } 
-                        });
+                        res.end();
+                        return;
                     } 
                     if (item.mlocation){
                         doc.mlocation = item.mlocation;
@@ -313,37 +236,13 @@ ProfileManager.prototype = {
                     self.docdatabase.UpdateItem(id, doc, function(err){
                         if(err) {
                              res.status(500).send({statusText: "Database error could not update user."}); //internal error
-
-                            var errorentry = {}; //schema for errorlog
-                            errorentry['file'] = "profileManager.addorUpdateStudent";
-                            errorentry['Status'] = 'Could not update AccountLog from the profileManager.';
-
-                            self.adderror(errorentry, function(err){ //log in error database
-                               if (err){
-                                   callback(err);
-                               } 
-                            });
                         }
-                        var accountinglog = {};
-                        accountinglog['accountID'] = id;
-                        accountinglog['file'] = 'profileManager.addorUpdateStudent';
-                        accountinglog['status'] = 'Update user';
-
-                        self.addevent(accountinglog, function(err){ //add event item
-                           if (err){
-                               throw(err);
-                           } 
-                        });
 
                         self.docdatabase.encodeauth(id, function(err, token){
                             if (err){
                                 throw(err);
                             }
-                            var headers = [];
-                            var tokenarray = [];
-                            tokenarray['token'] = token;
-                            headers['auth'] = tokenarray;
-                            responseHeader['headers'] = headers;
+                            responseHeader['headers'] = token;
                             responseHeader['status'] = 200;
                             responseHeader['statusText'] = 'Succesfully updated student.';
 
@@ -359,7 +258,7 @@ ProfileManager.prototype = {
     getuserinfo: function(req, res){
         var self = this;
         var item = req.query;
-        var token = req.header.auth.token;
+        var token = req.header;
         var id = item.userId;
         var responseHeader = {};
 
@@ -368,40 +267,18 @@ ProfileManager.prototype = {
                 res.status(400).send({statusText: "Unauthorized"});
             }
             self.docdatabase.getItem(id, function(err, doc){
-                if (err) {
+                if (err || !doc) {
                     res.status(400).send({statusText: "Could not retrive user data."}); //internal error
-
-                    var errorentry = {}; //schema for errorlog
-                    errorentry['file'] = "profileManager.getuserinfo";
-                    errorentry['Status'] = 'Could not retrive user data from AccountLog using the profileManager.';
-
-                    self.adderror(errorentry, function(err){ //log in error database
-                       if (err){
-                           callback(err);
-                       } 
-                    });
+                    res.end();
+                    return;
                 } 
-                var accountinglog = {};
-                accountinglog['accountID'] = id;
-                accountinglog['file'] = 'profileManager.getuserinfo';
-                accountinglog['status'] = 'AccountLog database was accessed to get data.';
-
-                self.addevent(accountinglog, function(err){ //add event item
-                   if (err){
-                       throw(err);
-                   } 
-                });
 
                 responseHeader['data'] = doc;
                 self.docdatabase.encodeauth(id, function(err, token){
                     if (err){
                         throw(err);
                     }
-                    var headers = [];
-                    var tokenarray = [];
-                    tokenarray['token'] = token;
-                    headers['auth'] = tokenarray;
-                    responseHeader['headers'] = headers;
+                    responseHeader['headers'] = token;
                     responseHeader['status'] = 200;
                     responseHeader['statusText'] = 'Succesfully retrived data.';
 
@@ -416,53 +293,32 @@ ProfileManager.prototype = {
     getUserInfofromLogin: function(req, res){
         var self = this;
         var item = req.query;
-        var token = req.header.auth.token;
         var email = item.email;
         email = atob(email);
         var psw = item.psw;
         psw = atob(psw);
         var responseHeader = {};
-        
+
         if(!email || !psw){
             res.status(400).send({error: "Invalid email"});
         }else{
             self.docdatabase.getLogin(email, function(err, doc){
-                if (err) {
+                if (err || !doc) {
                     res.status(400).send({statusText: "Could not retrive user data from login info."}); //internal error
-                        
-                    var errorentry = {}; //schema for errorlog
-                    errorentry['file'] = "profileManager.getUserInfofromLogin";
-                    errorentry['Status'] = 'Could not retrive user data from AccountLog using the profileManager.';
-
-                    self.adderror(errorentry, function(err){ //log in error database
-                       if (err){
-                           callback(err);
-                       } 
-                    });
+                    res.end();
+                    return;
                 } 
                 //check psw
                 if (psw == doc.Account.psw){
-                    var accountinglog = {};
-                    accountinglog['accountID'] = doc.id;
-                    accountinglog['file'] = 'profileManager.getUserInfofromLogin';
-                    accountinglog['status'] = 'AccountLog database was accessed to get personal info.';
-
-                    self.addevent(accountinglog, function(err){ //add event item
-                       if (err){
-                           throw(err);
-                       } 
-                    });
 
                     responseHeader['data'] = doc;
                     self.docdatabase.encodeauth(doc.id, function(err, token){
+                        console.log("token", token);
                         if (err){
                             throw(err);
                         }
-                        var headers = [];
-                        var tokenarray = [];
-                        tokenarray['token'] = token;
-                        headers['auth'] = tokenarray;
-                        responseHeader['headers'] = headers;
+
+                        responseHeader['headers'] = { token };
                         responseHeader['status'] = 200;
                         responseHeader['statusText'] = 'Succesfully retrived data from login info.';
 
