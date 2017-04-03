@@ -69,7 +69,7 @@ class Schedules extends Component {
 }
 
 function mapStateToSchedules(state) {
-	console.log(state);
+	// console.log(state);
 	const { currentSchedules } = state.scheduleReducer;
 	return { currentSchedules };
 }

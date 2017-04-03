@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
+import { connect } from 'react-redux';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -7,8 +8,9 @@ import Divider from 'material-ui/Divider';
 import TextField from 'material-ui/TextField';
 
 import loginStyle from './loginStyle';
+import userAction from '../userAction';
 
-export default class Login extends Component {
+class Login extends Component {
     constructor(props) {
         super();
 
@@ -20,6 +22,15 @@ export default class Login extends Component {
         this.handleOpen = this.handleOpen.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.handleTextChange = this.handleTextChange.bind(this);
+        this.login = this.login.bind(this);
+    }
+
+    login() {
+        const { email, password } = this.state;
+        console.log(this.props);
+        this.props.dispatch(userAction.login({ 
+            email: window.btoa(email) ,  
+            password: window.btoa(password) }));
     }
 
     handleOpen () {
@@ -91,6 +102,7 @@ export default class Login extends Component {
                     <RaisedButton label="Log In" 
                         style={ loginStyle.overall }
                         primary={ true }
+                        onTouchTap={ this.login }
                         buttonStyle={ loginStyle.button } />
 
                     <Divider />
@@ -106,3 +118,11 @@ export default class Login extends Component {
         );
     }
 }
+
+function mapStateToLogin(state) {
+    console.log(state);
+    const {  } = state.userReducer;
+    return {  };
+}
+
+export default connect(mapStateToLogin)(Login);

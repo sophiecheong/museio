@@ -229,6 +229,14 @@ export default class userAction {
 		}
 	}
 
+	static login(user) {
+		const that = this;
+		return dispatch => {
+			return axios.get('/api/login', user)
+				.then((data) => dispatch(that.receiveCurrentUser(data)));
+		}
+	}
+
 	static updateTeacher(user) {
 		const that = this;
 		return dispatch => {

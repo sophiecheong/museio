@@ -30,7 +30,7 @@ class Header extends Component {
 }
 
 function mapStateToHeader(state) {
-	console.log(state);
+	// console.log(state);
 	const { currentUser } = state.userReducer;
 	return { currentUser };
 }

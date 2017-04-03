@@ -115,7 +115,7 @@ class Profile extends Component {
 
 
 function mapStateToProfile(state) {
-	console.log(state);
+	// console.log(state);
 	const { currentUser, metrics, user } = state.userReducer;
 	return { currentUser, metrics, user };
 }
