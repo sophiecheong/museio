@@ -49,7 +49,7 @@ MetricManager.prototype = {
     //post
     addReview: function(req, res){
         var self = this;
-        var item = req.body.user;
+        var item = req.body;
         var token = req.header.auth.token;
         var responseHeader = {};
         var reviewee = {};

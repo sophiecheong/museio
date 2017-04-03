@@ -3,7 +3,7 @@ var config = require('./config');
 var profileManager = require('./models/controllers/profileManager');
 var metricManager = require('./models/controllers/museMetric');
 var searchManager = require('./models/controllers/userSearchManager');
-//var scheduleManager = require('./models/controllers/schedyleManager');
+var scheduleManager = require('./models/controllers/schedyleManager');
 var AccessManager = require('./models/DataAccessLayer');
 
 const express = require('express');
@@ -35,6 +35,7 @@ set up profile manager controller
 var profileman = new profileManager(profileController, eventlog, errorlog);
 var metricman = new metricManager(metricController, profileController, eventlog, errorlog);
 var userman = new searchManager(profileController, eventlog, errorlog);
+var scheduleman = new scheduleManager(scheduleController, eventlog, errorlog);
 
 
 //profile manager
@@ -46,6 +47,9 @@ MuseServer.get('/login', profileman.getUserInfofromLogin.bind(profileman));
 MuseServer.post('/metric', metricman.addReview.bind(metricman));
 MuseServer.get('/metric', metricman.getReviews.bind(metricman));
 MuseServer.get('/search', userman.searchdatabase.bind(userman));
+
+MuseServer.post('/schedule', scheduleman.addSchedule.bind(scheduleman));
+MuseServer.get('/schedule', scheduleman.getSchedules.bind(scheduleman));
 
 MuseServer.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
