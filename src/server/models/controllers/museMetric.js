@@ -50,7 +50,7 @@ MetricManager.prototype = {
     addReview: function(req, res){
         var self = this;
         var item = req.body;
-        var token = req.header.auth.token;
+        var token = req.header;
         var responseHeader = {};
         var reviewee = {};
         var reviewer = {};
@@ -59,8 +59,10 @@ MetricManager.prototype = {
             res.status(400).send({error: "Unauthorized"});
         }
         self.docdatabase.decodeauth(token, function(err, items){
-            if (err){
+            if (err !! items){
                 res.status(400).send({error: "Unauthorized"});
+                res.end();
+                return;
             }
             var AccountId = items.substring(2);
             self.accountdatabase.checkauth(token, function(err, authentication){
@@ -68,18 +70,10 @@ MetricManager.prototype = {
                     res.status(400).send({error: "Unauthorized"});
                 } 
                 self.accountdatabase.getItem(item.revieweeId, function(err, doc){
-                    if(err){
+                    if(err || !doc){
                         res.status(500).send({statusText: "Database error could not get teacher data."}); //internal error
-
-                        var errorentry = {}; //schema for errorlog
-                        errorentry['file'] = "museMetric.addReview";
-                        errorentry['Status'] = 'Could not get item from the accountLog.';
-
-                        self.adderror(errorentry, function(err){ //log in error database
-                           if (err){
-                               callback(err);
-                           } 
-                        });
+                        res.end();
+                        return;
                     }
                     
                     reviewee['firstName'] = doc.firstName;
@@ -89,18 +83,10 @@ MetricManager.prototype = {
                     item['reviewee'] = reviewee;
                     
                     self.accountdatabase.getItem(item.reviewerId, function(err, doc){
-                        if(err){
+                        if(err || !doc){
                             res.status(500).send({statusText: "Database error could not get student data."}); //internal error
-
-                            var errorentry = {}; //schema for errorlog
-                            errorentry['file'] = "museMetric.addReview";
-                            errorentry['Status'] = 'Could not get item from the accountLog.';
-
-                            self.adderror(errorentry, function(err){ //log in error database
-                               if (err){
-                                   callback(err);
-                               } 
-                            });
+                            res.end();
+                            return;
                         }
 
                         reviewer['firstName'] = doc.firstName;
@@ -114,37 +100,14 @@ MetricManager.prototype = {
                             self.docdatabase.addItem(item, function(err){
                                 if(err){
                                     res.status(500).send({statusText: "Database error could not add new review."}); //internal error
-
-                                    var errorentry = {}; //schema for errorlog
-                                    errorentry['file'] = "museMetric.addReview";
-                                    errorentry['Status'] = 'Could not add item to metric from the museMetric.';
-
-                                    self.adderror(errorentry, function(err){ //log in error database
-                                       if (err){
-                                           callback(err);
-                                       } 
-                                    });
+                                    res.end();
+                                    return;
                                 }
-                                var accountinglog = {};
-                                accountinglog['accountID'] = AccountId;
-                                accountinglog['file'] = 'museMetric.addReview';
-                                accountinglog['status'] = 'New review added';
-
-                                self.addevent(accountinglog, function(err){ //log event data
-                                   if (err){
-                                       throw(err);
-                                   } 
-                                });
-
                                 self.accountdatabase.encodeauth(AccountId, function(err, token){
                                     if(err){
                                         throw(err);
                                     }
-                                    var headers = [];
-                                    var tokenarray = [];
-                                    tokenarray['token'] = token;
-                                    headers['auth'] = tokenarray;
-                                    responseHeader['headers'] = headers;
+                                    responseHeader['headers'] = token;
                                     responseHeader['status'] = 200;
                                     responseHeader['statusText'] = 'Succesfully added new review.';
 
@@ -155,16 +118,8 @@ MetricManager.prototype = {
                             });
                         }else{
                             res.status(400).send({error: "Reviewer id does not match authentical id."});
-
-                            var errorentry = {}; //schema for errorlog
-                            errorentry['file'] = "museMetric.addReview";
-                            errorentry['Status'] = 'Reviewer id does not match authentical id.';
-
-                            self.adderror(errorentry, function(err){ //log in error database
-                               if (err){
-                                   callback(err);
-                               } 
-                            });
+                            res.end();
+                            return;
                         }
                     });
                 });
@@ -184,6 +139,9 @@ MetricManager.prototype = {
             if(err){
                 throw(err);
             }
+            if (!items){
+                return 0; //internal error
+            }
             var size = Object.keys(items).length;
              var count = 0;
              for (var i=0; i<size; i++){
@@ -202,7 +160,6 @@ MetricManager.prototype = {
         var reviewerId = item.reviewerId;
         var revieweeId = item.revieweeId;
         var responseHeader = {};
-        var userid = '';
         
         if(!token){
             res.status(400).send({error: "Unauthorized"});
@@ -223,8 +180,10 @@ MetricManager.prototype = {
                 };
 
                 self.docdatabase.find(querySpec, function (err, items){
-                    if(err){
-                        throw(err);
+                    if(err || !items){
+                        res.status(500).send({statusText: "Database error could not query for reviews."}); //internal error
+                        res.end();
+                        return;
                     }
                     var size = Object.keys(items).length;
                     if (size>5){
@@ -234,15 +193,11 @@ MetricManager.prototype = {
                         data[i] = items[i];
                     }
                     responseHeader['data'] = data;
-                    self.accountdatabase.encodeauth(userid, function(err, token){
+                    self.accountdatabase.encodeauth(reviewerId, function(err, token){
                         if (err){
                             throw(err);
                         }
-                        var headers = [];
-                        var tokenarray = [];
-                        tokenarray['token'] = token;
-                        headers['auth'] = tokenarray;
-                        responseHeader['headers'] = headers;
+                        responseHeader['headers'] = token;
                         responseHeader['status'] = 200;
                         responseHeader['statusText'] = 'Succesfully retrived data from login info.';
 
@@ -272,8 +227,10 @@ MetricManager.prototype = {
                     };
 
                     self.docdatabase.find(querySpec, function (err, items){
-                        if(err){
-                            throw(err);
+                        if(err || !items){
+                            res.status(500).send({statusText: "Database error could not query for reviews."}); //internal error
+                            res.end();
+                            return;
                         }
                         var size = Object.keys(items).length;
                         if (size>5){
@@ -286,15 +243,11 @@ MetricManager.prototype = {
                         data['avgRating'] = avg;
 
                         responseHeader['data'] = data;
-                        self.accountdatabase.encodeauth(userid, function(err, token){
+                        self.accountdatabase.encodeauth(revieweeId, function(err, token){
                             if (err){
                                 throw(err);
                             }
-                            var headers = [];
-                            var tokenarray = [];
-                            tokenarray['token'] = token;
-                            headers['auth'] = tokenarray;
-                            responseHeader['headers'] = headers;
+                            responseHeader['headers'] = token;
                             responseHeader['status'] = 200;
                             responseHeader['statusText'] = 'Succesfully retrived data from login info.';
 

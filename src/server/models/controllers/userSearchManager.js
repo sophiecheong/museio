@@ -16,7 +16,7 @@ userSearchManager.prototype = {
     searchdatabase: function (res, req){
         var self = this;
         var item = req.query;
-        var token = req.header.auth.token;
+        var token = req.header;
         var responseHeader = {};
         
         if(!token){
@@ -25,6 +25,8 @@ userSearchManager.prototype = {
             self.docdatabase.checkauth(token, function(err, authentication){
                 if(err){
                     res.status(400).send({error: "Unauthorized"});
+                    res.end();
+                    return;
                 };
                 var data = [];
                 var querySpec = {
@@ -36,7 +38,7 @@ userSearchManager.prototype = {
                 };
 
                 self.docdatabase.find(querySpec, function (err, docs){
-                    if(err){
+                    if(err || !docs){
                         throw(err);
                     }
                     var size = Object.keys(docs).length;
@@ -61,10 +63,7 @@ userSearchManager.prototype = {
                        if(err){
                            throw(err);
                        } 
-                        var headers = {};
-                        headers['token'] = token;
-                        responseHeader['data']=data;
-                        responseHeader['headers'] = headers;
+                        responseHeader['headers'] = token;
                         responseHeader['status'] = 200;
                         responseHeader['statusText'] = 'Query completed';
                         

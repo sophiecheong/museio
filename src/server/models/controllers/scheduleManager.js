@@ -13,7 +13,7 @@ ScheduleManager.prototype = {
     getSchedules: function(req, res){
         var self = this;
         var item = req.query;
-        var token = req.header.auth.token;
+        var token = req.header;
         var responseHeader = {};
         
         if(!token){
@@ -22,6 +22,8 @@ ScheduleManager.prototype = {
         self.docdatabase.checkauth(token, function(err, authentication){
             if(err){
                 res.status(400).send({error: "Unauthorized"});
+                res.end();
+                return;
             }
             var querySpec = {
                 query: 'SELECT * FROM root r WHERE r.userId=@userId',
@@ -31,7 +33,7 @@ ScheduleManager.prototype = {
                 }]
             };
             self.docdatabase.find(querySpec, function (err, items){
-                if(err){
+                if(err || !items){
                     throw(err);
                 }
                 responseHeader['data'] = items;
@@ -39,11 +41,7 @@ ScheduleManager.prototype = {
                     if (err){
                         throw(err);
                     }
-                    var headers = [];
-                    var tokenarray = [];
-                    tokenarray['token'] = token;
-                    headers['auth'] = tokenarray;
-                    responseHeader['headers'] = headers;
+                    responseHeader['headers'] = token;
                     responseHeader['status'] = 200;
                     responseHeader['statusText'] = 'Query finished running.';
 
