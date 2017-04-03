@@ -53,7 +53,6 @@ ProfileManager.prototype = {
         var item = req.body.user;
         var token = req.header.auth.token;
         var responseHeader = {};
-        var id ='';
         
         //check update or new user 
         if(!token){ //if no token is given
@@ -103,7 +102,7 @@ ProfileManager.prototype = {
                 }
 
                 var accountinglog = {};
-                accountinglog['accountId'] = doc.id;
+                accountinglog['accountID'] = doc.id;
                 accountinglog['file'] = 'profileManager.addorUpdateTeacher';
                 accountinglog['status'] = 'New service provider';
 
@@ -210,7 +209,6 @@ ProfileManager.prototype = {
         var self = this;
         var item = req.body.user;
         var token = req.header.auth.token;
-        var id = '';
         var responseHeader = {};
         
         //check update or new user 
@@ -258,7 +256,7 @@ ProfileManager.prototype = {
                 } 
 
                 var accountinglog = {};
-                accountinglog['accountID'] = id;
+                accountinglog['accountID'] = doc.id;
                 accountinglog['file'] = 'profileManager.addorUpdateStudent';
                 accountinglog['status'] = 'New service user';
 
@@ -420,7 +418,7 @@ ProfileManager.prototype = {
         var item = req.query;
         var token = req.header.auth.token;
         var email = item.email;
-        email = atob(id);
+        email = atob(email);
         var psw = item.psw;
         psw = atob(psw);
         var responseHeader = {};
@@ -445,7 +443,7 @@ ProfileManager.prototype = {
                 //check psw
                 if (psw == doc.Account.psw){
                     var accountinglog = {};
-                    accountinglog['accountID'] = id;
+                    accountinglog['accountID'] = doc.id;
                     accountinglog['file'] = 'profileManager.getUserInfofromLogin';
                     accountinglog['status'] = 'AccountLog database was accessed to get personal info.';
 
