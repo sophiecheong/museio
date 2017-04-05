@@ -13,7 +13,7 @@ ScheduleManager.prototype = {
     getSchedules: function(req, res){
         var self = this;
         var item = req.query;
-        var token = req.header.auth.token;
+        var token = req.header.auth;
         var responseHeader = {};
         
         if(!token){
@@ -39,11 +39,7 @@ ScheduleManager.prototype = {
                     if (err){
                         throw(err);
                     }
-                    var headers = [];
-                    var tokenarray = [];
-                    tokenarray['token'] = token;
-                    headers['auth'] = tokenarray;
-                    responseHeader['headers'] = headers;
+                    responseHeader['headers'] = { token };
                     responseHeader['status'] = 200;
                     responseHeader['statusText'] = 'Query finished running.';
 
