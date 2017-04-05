@@ -50,7 +50,7 @@ MetricManager.prototype = {
     addReview: function(req, res){
         var self = this;
         var item = req.body;
-        var token = req.header.auth.token;
+        var token = req.header.auth;
         var responseHeader = {};
         var reviewee = {};
         var reviewer = {};
@@ -140,11 +140,7 @@ MetricManager.prototype = {
                                     if(err){
                                         throw(err);
                                     }
-                                    var headers = [];
-                                    var tokenarray = [];
-                                    tokenarray['token'] = token;
-                                    headers['auth'] = tokenarray;
-                                    responseHeader['headers'] = headers;
+                                    responseHeader['headers'] = { token };
                                     responseHeader['status'] = 200;
                                     responseHeader['statusText'] = 'Succesfully added new review.';
 

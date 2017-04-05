@@ -23,7 +23,7 @@ userSearchManager.prototype = {
             res.status(400).send({error: "Unauthorized"}).end();
             return;
         }     
-
+        console.log(item);
         self.docdatabase.checkauth(token, function(err, authentication){
             if(err){
                 res.status(400).send({error: "Unauthorized"}).end();

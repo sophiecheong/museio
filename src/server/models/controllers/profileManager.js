@@ -51,7 +51,7 @@ ProfileManager.prototype = {
     addorUpdateTeacher: function (req, res) {
         var self = this;
         var item = req.body.user;
-        var token = req.header.auth.token;
+        var token = req.header.auth;
         var responseHeader = {};
         
         //check update or new user 
@@ -116,11 +116,7 @@ ProfileManager.prototype = {
                     if (err){
                         throw(err);
                     }
-                    var headers = [];
-                    var tokenarray = [];
-                    tokenarray['token'] = token;
-                    headers['auth'] = tokenarray;
-                    responseHeader['headers'] = headers;
+                    responseHeader['headers'] = { token };
                     responseHeader['status'] = 200;
                     responseHeader['statusText'] = 'Succesfully added new teacher.';
 
@@ -188,11 +184,7 @@ ProfileManager.prototype = {
                             if (err){
                                 throw(err);
                             }
-                            var headers = [];
-                            var tokenarray = [];
-                            tokenarray['token'] = token;
-                            headers['auth'] = tokenarray;
-                            responseHeader['headers'] = headers;
+                            responseHeader['headers'] = { token };
                             responseHeader['status'] = 200;
                             responseHeader['statusText'] = 'Succesfully updated teacher.';
 
@@ -208,7 +200,7 @@ ProfileManager.prototype = {
     addorUpdateStudent: function (req, res) {
         var self = this;
         var item = req.body.user;
-        var token = req.header.auth.token;
+        var token = req.header.auth;
         var responseHeader = {};
         
         //check update or new user 
@@ -270,11 +262,7 @@ ProfileManager.prototype = {
                     if (err){
                         throw(err);
                     }
-                    var headers = [];
-                    var tokenarray = [];
-                    tokenarray['token'] = token;
-                    headers['auth'] = tokenarray;
-                    responseHeader['headers'] = headers;
+                    responseHeader['headers'] = { token };
                     responseHeader['status'] = 200;
                     responseHeader['statusText'] = 'Succesfully added new student.';
 
@@ -339,11 +327,7 @@ ProfileManager.prototype = {
                             if (err){
                                 throw(err);
                             }
-                            var headers = [];
-                            var tokenarray = [];
-                            tokenarray['token'] = token;
-                            headers['auth'] = tokenarray;
-                            responseHeader['headers'] = headers;
+                            responseHeader['headers'] = { token };
                             responseHeader['status'] = 200;
                             responseHeader['statusText'] = 'Succesfully updated student.';
 
